@@ -22,7 +22,7 @@ ES_VERB_SUFFIX = ["lo", "la", "le", "los", "las", "les", "me", "te", "se", "nos"
 
 class Analyzer:
     def __init__(self):
-        self.r = redis.Redis('powermac1.humancomp.cs.cmu.edu', 6379)
+        self.r = redis.Redis('blue4.monolingo.cs.cmu.edu', 6379)
         self.verbs = list()
         self.words = list()
 
@@ -54,8 +54,18 @@ class Analyzer:
         return [word]
 
     def analyze(self, token):
-        #meanings = self.r.scard('Meaning:token=es|' + token.encode('utf-8') + ':index')
-        #if meanings>0: return False
+        meanings = self.r.scard('Meaning:token=es|' + token.encode('utf-8') + ':index')
+        if meanings>0: return False
+
+        singular = None
+        if len(token)>4 and token.endswith('es'):
+            singular = token[:-2]
+        elif len(token)>3 and token.endswith('s'):
+            singular = token[:-1]
+    
+        if singular:
+            meanings = self.r.scard('Meaning:token=es|' + singular.encode('utf-8') + ':index')
+            if meanings>0: return False
 
         data = self.r.get('Token:es|' + token.encode('utf-8') + ':object')
         clitics = []
