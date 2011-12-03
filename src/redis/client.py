@@ -7,7 +7,6 @@ import warnings
 from itertools import chain
 from redis.exceptions import ConnectionError, ResponseError, InvalidResponse
 from redis.exceptions import RedisError, AuthenticationError
-from pylons import config
 
 class ConnectionPool(threading.local):
     "Manages a list of connections on the local thread"

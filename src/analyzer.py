@@ -20,6 +20,15 @@ ES_ACCENT_DROP = {u'á': u'a', u'é': u'e', u'í': u'i', u'ó': u'o', u'ú': u'u
                   u'Á': u'A', u'É': u'E', u'Í': u'I', u'Ó': u'O', u'Ú': u'U'}
 ES_VERB_SUFFIX = [] #"lo", "la", "le", "los", "las", "les", "me", "te", "se", "nos"]
 
+def drop_accents(word):
+    new_word = []
+    for letter in word:
+        if letter in ES_ACCENT_DROP:
+            new_word.append(ES_ACCENT_DROP[letter])
+        else:
+            new_word.append(letter)
+    return ''.join(new_word)
+
 class Analyzer:
     def __init__(self):
         self.r = redis.Redis('blue4.monolingo.cs.cmu.edu', 6379)
@@ -56,17 +65,21 @@ class Analyzer:
         if meanings>0: return token
 
         singular = None
-        if len(token)>3 and token.endswith('s'):
-            singular = token[:-1]
-        elif len(token)>4 and token.endswith('es'):
+        if len(token)>4 and token.endswith('es'):
             singular = token[:-2]
+        elif len(token)>3 and token.endswith('s'):
+            singular = token[:-1]
     
         if singular:
             meanings = self.r.scard('Meaning:token=es|' + singular.encode('utf-8') + ':index')
             if meanings>0: return token
+            
+            if singular.endswith('on'): singular = singular[:-2] + u'ón'
+            meanings = self.r.scard('Meaning:token=es|' + singular.encode('utf-8') + ':index')
+            if meanings>0: return token      
 
-	#clitics = []
-	data = self.r.get('Token:es|' + token.encode('utf-8') + ':object')
+        #clitics = []
+        data = self.r.get('Token:es|' + token.encode('utf-8') + ':object')
         #if data is None: clitics = self.get_clitics(token)
         #if len(clitics) > 0:
         #    token = clitics[0]
@@ -87,6 +100,8 @@ class Analyzer:
         present = False
 
         for conj, verbs in conjugations.iteritems():
+            if 'ser' in verbs or 'estar' in verbs:
+                return token
             for verb in verbs:
                 all_verbs.add(verb)
             info = conj.split('_')
@@ -123,7 +138,7 @@ class Analyzer:
         pkey = 'xx' + 'xx'.join(sorted(list(all_person))) + 'xx' if len(all_person)>0 else None
  
         morphemes = []
-        #if pkey: morphemes.append(pkey)
+        if pkey: morphemes.append(pkey)
         if ckey and not attached and not present: morphemes.append(ckey)
         
         verb = all_verbs.pop()
