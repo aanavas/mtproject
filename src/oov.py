@@ -23,8 +23,9 @@ ES_ACCENT_DROP = {u'á': u'a', u'é': u'e', u'í': u'i', u'ó': u'o', u'ú': u'u
 ES_VERB_SUFFIX = ["lo", "la", "le", "los", "las", "les", "me", "te", "se", "nos"]
 
 class Analyzer:
-    def __init__(self):
+    def __init__(self, language):
         self.r = redis.Redis('blue4.monolingo.cs.cmu.edu', 6379)
+        self.language = language
         self.verbs = list()
         self.words = list()
         self.conjugations = defaultdict(int)
@@ -34,7 +35,7 @@ class Analyzer:
         for ending in ES_VERB_SUFFIX:
             if word.endswith(ending):
                 try_word = left = word[:-len(ending)].lower()
-                data = self.r.get('Token:es|' + try_word.encode('utf-8') + ':object')
+                data = self.r.get('Token:%s|' % self.language + try_word.encode('utf-8') + ':object')
                 if data is not None: data = json.loads(data)
                 if data is not None and ('conjugated_of' in data or 'conjugations' in data):
                     result.append(try_word)
@@ -42,7 +43,7 @@ class Analyzer:
                     for i in range(0, len(try_word)):
                         if try_word[i] in ES_ACCENT_DROP:
                             try_word = try_word[:i]+ES_ACCENT_DROP[try_word[i]]+try_word[i+1:]
-                            data = self.r.get('Token:es|' + try_word.encode('utf-8') + ':object')
+                            data = self.r.get('Token:%s|' % self.language + try_word.encode('utf-8') + ':object')
                             if data is not None: data = json.loads(data)
                             if data is not None and ('conjugated_of' in data or 'conjugations' in data):
                                 result.append(try_word)
@@ -60,7 +61,7 @@ class Analyzer:
         if token.endswith('xx'):
             return True
 
-        meanings = self.r.scard('Meaning:token=es|' + token.encode('utf-8') + ':index')
+        meanings = self.r.scard('Meaning:token=%s|' % self.language + token.encode('utf-8') + ':index')
         if meanings>0: return False
 
         singular = None
@@ -70,16 +71,16 @@ class Analyzer:
             singular = token[:-1]
     
         if singular:
-            meanings = self.r.scard('Meaning:token=es|' + singular.encode('utf-8') + ':index')
+            meanings = self.r.scard('Meaning:token=%s|' % self.language + singular.encode('utf-8') + ':index')
             if meanings>0: return False
 
-        data = self.r.get('Token:es|' + token.encode('utf-8') + ':object')
+        data = self.r.get('Token:%s|' % self.language + token.encode('utf-8') + ':object')
         clitics = []
         if data is None: clitics = self.get_clitics(token)
         if len(clitics) > 0:
             token = clitics[0]
 
-        if data is None: data = self.r.get('Token:es|' + token.encode('utf-8') + ':object')
+        if data is None: data = self.r.get('Token:%s|' % self.language + token.encode('utf-8') + ':object')
         if data is None: return False
         data = json.loads(data)
         if 'conjugated_of' in data and data['conjugated_of']:
@@ -103,7 +104,7 @@ class Analyzer:
         return (lu, lv)
 
 if __name__ == '__main__':
-    analyzer = Analyzer()
+    analyzer = Analyzer(sys.argv[1])
     line = sys.stdin.readline()
     unk = 0
     vrb = 0
@@ -136,8 +137,8 @@ if __name__ == '__main__':
                             key=analyzer.conjugations.get,
                             reverse=True)])
 
-    ifile = codecs.open(sys.argv[1], 'r', 'utf-8')
-    rfile = codecs.open(sys.argv[2], 'r', 'utf-8')
+    ifile = codecs.open(sys.argv[2], 'r', 'utf-8')
+    rfile = codecs.open(sys.argv[3], 'r', 'utf-8')
     ofile = codecs.open('verbs-src.es.sgm', 'w', 'utf-8')
     orfile = codecs.open('verbs-ref.en.sgm', 'w', 'utf-8')
     
