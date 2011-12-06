@@ -26,7 +26,7 @@ class Analyzer:
         self.r = redis.Redis('blue4.monolingo.cs.cmu.edu', 6379)
         self.verbs = list()
         self.words = list()
-        self.conjugations = defaultdict(0)
+        self.conjugations = defaultdict(int)
 
     def get_clitics(self, word):
         result = []
@@ -79,8 +79,9 @@ class Analyzer:
         if data is None: return False
         data = json.loads(data)
         if 'conjugated_of' in data and data['conjugated_of']:
-            for conj, _ in data['conjugated_of']:
+            for conj, _ in data['conjugated_of'].iteritems():
                 self.conjugations[conj] += 1
+            return True
         elif 'conjugation' in data and data['conjugation']:
             self.conjugations['infinitive'] += 1
             return True
@@ -126,6 +127,6 @@ if __name__ == '__main__':
     print '=== words ===\n', '\n'.join(words).encode('utf-8')
     
     print '========'
-    print analyser.conjugations
+    print analyzer.conjugations
 
     
