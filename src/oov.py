@@ -138,12 +138,21 @@ if __name__ == '__main__':
 
     ifile = codecs.open(sys.argv[1], 'r', 'utf-8')
     rfile = codecs.open(sys.argv[2], 'r', 'utf-8')
-    ofile = codecs.open('verbs.sgm', 'w', 'utf-8')
-    orfile = codecs.open('verbs.sgm', 'w', 'utf-8')
+    ofile = codecs.open('verbs-src.es.sgm', 'w', 'utf-8')
+    orfile = codecs.open('verbs-ref.en.sgm', 'w', 'utf-8')
     
     pos = 0
     segs = []
+    doc = False
+
     for line in ifile:
+        if 'docid' in line:
+            if doc: continue
+            doc = True
+        if '</doc' in line:
+            continue
+        if '</srcset' in line:
+            line = '</doc>\n' + line
         if 'seg' not in line:
             ofile.write(line)
             continue
@@ -156,7 +165,16 @@ if __name__ == '__main__':
             ofile.write(line)
     ofile.close()
     
+    pos = 0
+    doc = False
     for line in rfile:
+        if 'docid' in line:
+            if doc: continue
+            doc = True
+        if '</doc' in line:
+            continue
+        if '</refset' in line:
+            line = '</doc>\n' + line
         if 'seg' not in line:
             orfile.write(line)
             continue
