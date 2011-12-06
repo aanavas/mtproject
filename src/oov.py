@@ -3,6 +3,7 @@
 import sys
 import redis
 import simplejson as json
+from collections import defaultdict
 
 SUFFIX = {
     'FPS':  '1ps',
@@ -25,6 +26,7 @@ class Analyzer:
         self.r = redis.Redis('blue4.monolingo.cs.cmu.edu', 6379)
         self.verbs = list()
         self.words = list()
+        self.conjugations = defaultdict(0)
 
     def get_clitics(self, word):
         result = []
@@ -76,8 +78,13 @@ class Analyzer:
         if data is None: data = self.r.get('Token:es|' + token.encode('utf-8') + ':object')
         if data is None: return False
         data = json.loads(data)
-        return (('conjugated_of' in data and data['conjugated_of']) or
-                ('conjugation' in data and data['conjugation']))
+        if 'conjugated_of' in data and data['conjugated_of']:
+            for conj, _ in data['conjugated_of']:
+                self.conjugations[conj] += 1
+        elif 'conjugation' in data and data['conjugation']:
+            self.conjugations['infinitive'] += 1
+            return True
+        return False
 
     def process(self, tokens, lu, lv):
         for token in tokens:
@@ -110,5 +117,15 @@ if __name__ == '__main__':
             (unk, vrb) = analyzer.process(line.strip().split(), unk, vrb)
         line = sys.stdin.readline()
     print unk, vrb, unk*100.0/cnt, vrb*100.0/unk
-    #print 'verbs:\n', '\n'.join(sorted(analyzer.verbs)).encode('utf-8')
+    
+    verb_set = set(analyzer.verbs)
+    verbs = sorted(list(verb_set))
+    print '=== verbs ===\n', '\n'.join(verbs).encode('utf-8')
 
+    words = sorted(list(set(analyzer.words) - verb_set))
+    print '=== words ===\n', '\n'.join(words).encode('utf-8')
+    
+    print '========'
+    print analyser.conjugations
+
+    
