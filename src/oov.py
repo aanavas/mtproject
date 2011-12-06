@@ -4,6 +4,7 @@ import sys
 import redis
 import simplejson as json
 from collections import defaultdict
+import operator
 
 SUFFIX = {
     'FPS':  '1ps',
@@ -127,6 +128,7 @@ if __name__ == '__main__':
     print '=== words ===\n', '\n'.join(words).encode('utf-8')
     
     print '========'
-    print analyzer.conjugations
+    print '\n'.join(sorted(analyzer.conjugations.iteritems(),
+                           key=operator.itemgetter(1)))
 
     
