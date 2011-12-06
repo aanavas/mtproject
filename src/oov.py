@@ -4,7 +4,6 @@ import sys
 import redis
 import simplejson as json
 from collections import defaultdict
-import operator
 
 SUFFIX = {
     'FPS':  '1ps',
@@ -57,6 +56,9 @@ class Analyzer:
         return [word]
 
     def analyze(self, token):
+        if token.endswith('xx'):
+            return True
+
         meanings = self.r.scard('Meaning:token=es|' + token.encode('utf-8') + ':index')
         if meanings>0: return False
 
@@ -128,7 +130,9 @@ if __name__ == '__main__':
     print '=== words ===\n', '\n'.join(words).encode('utf-8')
     
     print '========'
-    print '\n'.join(sorted(analyzer.conjugations.iteritems(),
-                           key=operator.itemgetter(1)))
+    print '\n'.join(['%5d=%s' % (analyzer.conjugations[k], k) for k in 
+                     sorted(analyzer.conjugations,
+                            key=analyzer.conjugations.get,
+                            reverse=True)])
 
     
