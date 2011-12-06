@@ -30,15 +30,16 @@ def drop_accents(word):
     return ''.join(new_word)
 
 class Analyzer:
-    def __init__(self):
+    def __init__(self, language):
         self.r = redis.Redis('blue4.monolingo.cs.cmu.edu', 6379)
+        self.language = language
 
     def get_clitics(self, word):
         result = []
         for ending in ES_VERB_SUFFIX:
             if word.endswith(ending):
                 try_word = left = word[:-len(ending)].lower()
-                data = self.r.get('Token:es|' + try_word.encode('utf-8') + ':object')
+                data = self.r.get('Token:%s|' % self.language + try_word.encode('utf-8') + ':object')
                 if data is not None: data = json.loads(data)
                 if data is not None and (('conjugated_of' in data and data['conjugated_of']) or ('conjugations' in data and data['conjugations'])):
                     result.append(try_word)
@@ -46,7 +47,7 @@ class Analyzer:
                     for i in range(0, len(try_word)):
                         if try_word[i] in ES_ACCENT_DROP:
                             try_word = try_word[:i]+ES_ACCENT_DROP[try_word[i]]+try_word[i+1:]
-                            data = self.r.get('Token:es|' + try_word.encode('utf-8') + ':object')
+                            data = self.r.get('Token:%s|' % self.language + try_word.encode('utf-8') + ':object')
                             if data is not None: data = json.loads(data)
                             if data is not None and (('conjugated_of' in data and data['conjugated_of']) or ('conjugations' in data and data['conjugations'])):
                                 result.append(try_word)
@@ -79,7 +80,7 @@ class Analyzer:
             if meanings>0: return token      
 
         #clitics = []
-        data = self.r.get('Token:es|' + token.encode('utf-8') + ':object')
+        data = self.r.get('Token:%s|' % self.language + token.encode('utf-8') + ':object')
         #if data is None: clitics = self.get_clitics(token)
         #if len(clitics) > 0:
         #    token = clitics[0]
@@ -87,7 +88,7 @@ class Analyzer:
         #else:
         #    clitics = []
 
-        #if data is None: data = self.r.get('Token:es|' + token.encode('utf-8') + ':object')
+        #if data is None: data = self.r.get('Token:%s|' % self.language + token.encode('utf-8') + ':object')
         if data is None: return token
         data = json.loads(data)
         if 'conjugated_of' not in data: return token
@@ -108,7 +109,7 @@ class Analyzer:
             infor = ''.join([x[0].upper() for x in info])
             if conj == 'gerund' or conj.startswith('participle'):
                 return token
-            if 'imperative' in conj or 'subjunctive' in conj:
+            if 'imperativ' in conj or 'subjunctive' in conj:
                 if info[0] == 'preterite':
                     all_conjs.add('past')
                     attached = True
@@ -127,6 +128,11 @@ class Analyzer:
                     attached = True
                 elif info[0] == 'present':
                     present = True
+            elif 'past' in conj:
+                all_conjs.add('past')
+                attached = True              
+            elif 'conditional' in conj:
+                all_conjs.add('cond')            
 
             for suff, person in SUFFIX.iteritems():
                 if infor.endswith(suff):
@@ -155,7 +161,7 @@ class Analyzer:
         return ' '.join([self.analyze(t) for t in tokens])
 
 if __name__ == '__main__':
-    analyzer = Analyzer()
+    analyzer = Analyzer(sys.argv[1])
     line = sys.stdin.readline()
     while line:
         line = unicode(line, 'utf-8')
