@@ -144,7 +144,7 @@ class Analyzer:
         pkey = 'xx' + 'xx'.join(sorted(list(all_person))) + 'xx' if len(all_person)>0 else None
  
         morphemes = []
-        if pkey: morphemes.append(pkey)
+        #if pkey: morphemes.append(pkey)
         if ckey and not attached and not present: morphemes.append(ckey)
         
         verb = all_verbs.pop()
