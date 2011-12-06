@@ -4,6 +4,7 @@ import sys
 import redis
 import simplejson as json
 from collections import defaultdict
+import codecs
 
 SUFFIX = {
     'FPS':  '1ps',
@@ -135,4 +136,33 @@ if __name__ == '__main__':
                             key=analyzer.conjugations.get,
                             reverse=True)])
 
+    ifile = codecs.open(sys.argv[1], 'r', 'utf-8')
+    rfile = codecs.open(sys.argv[2], 'r', 'utf-8')
+    ofile = codecs.open('verbs.sgm', 'w', 'utf-8')
+    orfile = codecs.open('verbs.sgm', 'w', 'utf-8')
     
+    pos = 0
+    segs = []
+    for line in ifile:
+        if 'seg' not in line:
+            ofile.write(line)
+            continue
+        
+        pos += 1
+        words = set(line.lower().strip().split())
+        inter = words.intersection(verbs)
+        if len(inter) > 0:
+            segs.append(pos)
+            ofile.write(line)
+    ofile.close()
+    
+    for line in rfile:
+        if 'seg' not in line:
+            orfile.write(line)
+            continue
+        
+        pos += 1
+        if pos in segs:
+            orfile.write(line)
+
+    orfile.close()

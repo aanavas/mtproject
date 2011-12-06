@@ -1,3 +1,20 @@
+<srcset setid="test2009" srclang="any">
+<doc docid="idnes.cz/2009/12/10/74900" genre="news" origlang="cz">
+<hl>
+<seg id="1"> Barack Obama será el cuarto presidente estadounidense que reciba el Premio Nobel de la Paz</seg></hl>
+<p>
+<seg id="2"> El presidente estadounidense Barack Obama llegará a Oslo, Noruega para pasar 26 horas y recibir el Premio Nobel de la Paz, como el cuarto presidente estadounidense de la historia.</seg>
+<seg id="3"> El diploma, la medalla y el cheque de 1,4 millones de dólares los recibirá, entre otras cosas, por el esfuerzo excepcional en el refuerzo de la diplomacia mundial y la cooperación entre las naciones.</seg>
+</p>
+<p>
+<seg id="4"> El jefe de la Casa Blanca y su esposa Michelle llegarán a la metrópoli noruega por la mañana y tendrán mucho que hacer.</seg>
+<seg id="5"> Primero, visita del Instituto de Nobel, donde por primera vez se encontrará con los cinco miembros del comité que, en octubre, le eligió entre 172 personas y 33 organizaciones.</seg>s
+</p>
+<p>
+<seg id="6"> Después, la pareja presidencial tiene prevista una reunión con el rey de Noruega, Harald V, y la reina Sonia.</seg>
+<seg id="7"> Por la tarde la visita culminará con una ceremonia en la que Obama recibirá el prestigioso galardón.</seg>
+<seg id="8"> Será el cuarto presidente estadounidense que lo reciba, aunque el tercero que lo recibe en su cargo.</seg>
+</p>
 barack obama será el cuarto presidente estadounidense que reciba el premio nobel de la paz
 el presidente estadounidense barack obama llegará a oslo , noruega para pasar 26 horas y recibir el premio nobel de la paz , como el cuarto presidente estadounidense de la historia .
 el diploma , la medalla y el cheque de 1,4 millones de dólares los recibirá , entre otras cosas , por el esfuerzo excepcional en el refuerzo de la diplomacia mundial y la cooperación entre las naciones .
@@ -2487,3 +2504,6 @@ la principal diferencia entre ambos sistemas es que el orientado al taller no in
 el coste de utilización de esta herramienta para el taller es de 350 euros al año , que el cliente puede financiar .
 actualmente la empresa audatex está trabajando para que estas imágenes sean tridimensionales .
 esta es una innovación que los mecánicos ven con muy buenos ojos , ya que permitirá , por ejemplo , seleccionar una puerta y darle la vuelta para ver la cara interior .
+</p>
+</doc>
+</srcset>
