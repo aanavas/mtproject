@@ -109,6 +109,8 @@ if __name__ == '__main__':
     unk = 0
     vrb = 0
     cnt = 0
+    list_pos = []
+    cur_pos = 0
     while line:
         if not line.startswith('BEST TRANSLATION'): 
             line = sys.stdin.readline()
@@ -120,9 +122,14 @@ if __name__ == '__main__':
             tokens.append(token)
         cnt += len(tokens)
         if '|UNK|UNK|UNK' in line:
+            prev_vrb = vrb
             (unk, vrb) = analyzer.process(line.strip().split(), unk, vrb)
+            if vrb > prev_vrb:
+                list_pos.append(cur_pos)
         line = sys.stdin.readline()
+        cur_pos += 1
     print unk, vrb, unk*100.0/cnt, vrb*100.0/unk
+    print ','.join(list_pos[:20])
     
     verb_set = set(analyzer.verbs)
     verbs = sorted(list(verb_set))
