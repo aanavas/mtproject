@@ -150,7 +150,6 @@ if __name__ == '__main__':
     orfile = codecs.open('verbs-ref.en.sgm', 'w', 'utf-8')
     
     pos = 0
-    segs = []
     doc = False
 
     for line in ifile:
@@ -165,12 +164,9 @@ if __name__ == '__main__':
             ofile.write(line)
             continue
         
-        pos += 1
-        words = set(line.lower().strip().split())
-        inter = words.intersection(verbs)
-        if len(inter) > 0:
-            segs.append(pos)
+        if pos in list_pos:
             ofile.write(line)
+        pos += 1
     ofile.close()
     
     pos = 0
@@ -187,8 +183,8 @@ if __name__ == '__main__':
             orfile.write(line)
             continue
         
-        pos += 1
-        if pos in segs:
+        if pos in list_pos:
             orfile.write(line)
+        pos += 1
 
     orfile.close()
