@@ -129,7 +129,7 @@ if __name__ == '__main__':
         line = sys.stdin.readline()
         cur_pos += 1
     print unk, vrb, unk*100.0/cnt, vrb*100.0/unk
-    print ','.join(list_pos[:20])
+    print ','.join([str(x) for x in list_pos[:20]])
     
     verb_set = set(analyzer.verbs)
     verbs = sorted(list(verb_set))
