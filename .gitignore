@@ -1,2 +1,4 @@
 data/bak
 *.pyc
+data/db/appendonly.aof
+data/db/redis.log
