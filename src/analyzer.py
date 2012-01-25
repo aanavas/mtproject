@@ -2,7 +2,9 @@
 
 import sys
 import redis
-import simplejson as json
+#import simplejson as json
+import json as json
+from transform import transform
 
 SUFFIX = {
     'FPS':  '1ps',
@@ -161,10 +163,11 @@ class Analyzer:
         return ' '.join([self.analyze(t) for t in tokens])
 
 if __name__ == '__main__':
-    analyzer = Analyzer(sys.argv[1])
+    #analyzer = Analyzer(sys.argv[1])
+    language = sys.argv[1]
     line = sys.stdin.readline()
     while line:
         line = unicode(line, 'utf-8')
-        print analyzer.process(line.strip().split()).encode('utf-8')
+        #print analyzer.process(line.strip().split()).encode('utf-8')
+        print transform(language, line.strip()).encode('utf-8')
         line = sys.stdin.readline()
-
