@@ -10,14 +10,14 @@ import hashlib
 
 RULES = {
     'es': [
-        ('(.*)_subjunctive_(.*)', '$infinitive-xxsubjxx'),
-        ('preterite(.*)', '$infinitive-xxpastxx'),
+        ('(.*)_subjunctive_(.*)', '$infinitivexxsubjxx'),
+        ('preterite(.*)', '$infinitivexxpastxx'),
         ('present_indicative_(.*)_plural', '$infinitive'),
         ('present_indicative_(first|second)_person_singular(.*)', '$infinitive'),
         ('present_indicative_third_person_singular(.*)', None),
         ('future_indicative(.*)', 'xxfutrxx $infinitive'),
-        ('copreterite(.*)', '$infinitive-xxcoprxx'),
-        ('participle(.*)', '$infinitive-xxpartxx'),
+        ('copreterite(.*)', '$infinitivexxcoprxx'),
+        ('participle(.*)', '$infinitivexxpartxx'),
         ('imperative(.*)', '$infinitive'),
         ('conditional(.*)', 'xxcondxx $infinitive'),
     ]
@@ -44,20 +44,20 @@ TESTS = {
            u'las finalistas se decidirán mañana': u'las finalistas se xxfutrxx decidir mañana',
            
            # past: infinitive+xxpastxx
-           u'yo obtuve el primer lugar': u'yo obtener-xxpastxx el primer lugar',
-           u'ellos ofrecieron sus disculpas': u'ellos ofrecer-xxpastxx sus disculpas',
-           u'nosotros usamos el carro de juan': u'nosotros usar-xxpastxx el carro de juan',
+           u'yo obtuve el primer lugar': u'yo obtenerxxpastxx el primer lugar',
+           u'ellos ofrecieron sus disculpas': u'ellos ofrecerxxpastxx sus disculpas',
+           u'nosotros usamos el carro de juan': u'nosotros usarxxpastxx el carro de juan',
            
            # copreterite: infinitive+xxcoprxx
-           u'mientras conversaban con el director': u'mientras conversar-xxcoprxx con el director',
+           u'mientras conversaban con el director': u'mientras conversarxxcoprxx con el director',
            
            # participle: infinitive+xxpartxx
-           u'todos se han contagiado': u'todos se haber contagiar-xxpartxx',
-           u'ella fue conducida a las autoridades': u'ella ir-xxpastxx conducir-xxpartxx a las autoridades',
+           u'todos se han contagiado': u'todos se haber contagiarxxpartxx',
+           u'ella fue conducida a las autoridades': u'ella irxxpastxx conducirxxpartxx a las autoridades',
            
            # subjunctive: infinitive+xxsubjxx
-           u'quieres que te cuente o no ?': u'querer que te contar-xxsubjxx o no ?',
-           u'ellos me dijeron que no te dijera nada': u'ellos me decir-xxpastxx que no te decir-xxsubjxx nada',
+           u'quieres que te cuente o no ?': u'querer que te contarxxsubjxx o no ?',
+           u'ellos me dijeron que no te dijera nada': u'ellos me decirxxpastxx que no te decirxxsubjxx nada',
            
            # imperative
            u'ten tus cosas': 'tener tus cosas',
