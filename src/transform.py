@@ -6,6 +6,7 @@ import re
 from redis.client import Redis
 import urllib
 import urllib2
+import hashlib
 
 RULES = {
     'es': [
@@ -51,6 +52,19 @@ def get_pos_tagger(language, sentence, universal_tags=True, tuning=False):
     except Exception as e:
         print "ERROR:", e, url
         return None
+    
+def get_pos_tags(language, sentence):
+    hash_function = hashlib.md5()
+    hash_function.update(language)
+    hash_function.update(sentence)
+    key = 'pos:%s' % hash_function.hexdigest()
+    
+    if db.exists(key):
+        return json.loads(db.get(key))
+    else:
+        result = get_pos_tagger(language, sentence)
+        db.set(key, json.dumps(result))
+        return result
 
 def get_word(language, word, pos_tag):
     if pos_tag[0]==word and pos_tag[1] != 'VERB': return None
@@ -72,7 +86,7 @@ def transform_token(language, token, pos_tag):
     return token
 
 def transform(language, sentence):
-    pos_tags = get_pos_tagger(language, sentence)
+    pos_tags = get_pos_tags(language, sentence)
     return ' '.join([transform_token(language, t, pos_tags[i]) for i, t in enumerate(sentence.split())])
 
 if __name__ == '__main__':
