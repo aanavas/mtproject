@@ -10,22 +10,61 @@ import hashlib
 
 RULES = {
     'es': [
-        ('future_indicative(.*)', 'xxfutrxx $infinitive'),
+        ('(.*)_subjunctive_(.*)', '$infinitive-xxsubjxx'),
+        ('preterite(.*)', '$infinitive-xxpastxx'),
         ('present_indicative_(.*)_plural', '$infinitive'),
-        ('present_indicative_(first|second)_person_singular(.*)', '$infinitive')
+        ('present_indicative_(first|second)_person_singular(.*)', '$infinitive'),
+        ('present_indicative_third_person_singular(.*)', None),
+        ('future_indicative(.*)', 'xxfutrxx $infinitive'),
+        ('copreterite(.*)', '$infinitive-xxcoprxx'),
+        ('participle(.*)', '$infinitive-xxpartxx'),
+        ('imperative(.*)', '$infinitive'),
+        ('conditional(.*)', 'xxcondxx $infinitive'),
     ]
 }
 
 TESTS = {
     'es': {
-           u'la inflación saltará este año': u'la inflación xxfutrxx saltar este año',
-           u'yo camino al parque': u'yo caminar al parque',
-           u'tú caminas al parque': u'tú caminar al parque',
-           u'ella camina al parque': u'ella camina al parque',
-           u'vosotros camináis al parque': u'vosotros caminar al parque',
-           u'nosotros caminamos al parque': u'nosotros caminar al parque',
-           u'ellos caminan al parque': u'ellos caminar al parque',
+           # should ignore nouns
            u'el camino es largo': u'el camino es largo',
+           u'las fuerzas de seguridad': u'las fuerzas de seguridad',
+
+           # present third-person-singular: unchanged
+           u'ella camina al parque': u'ella camina al parque',
+           
+           # present everything-else: infinitive
+           u'yo corro al parque': u'yo correr al parque',
+           u'tú corres la carrera': u'tú correr la carrera',
+           u'vosotros corréis al parque': u'vosotros correr al parque',
+           u'nosotros comemos arroz': u'nosotros comer arroz',
+           u'ellos caminan al parque': u'ellos caminar al parque',
+           
+           # future: xxfutrxx + infinitive
+           u'la inflación saltará este año': u'la inflación xxfutrxx saltar este año',
+           u'las finalistas se decidirán mañana': u'las finalistas se xxfutrxx decidir mañana',
+           
+           # past: infinitive+xxpastxx
+           u'yo obtuve el primer lugar': u'yo obtener-xxpastxx el primer lugar',
+           u'ellos ofrecieron sus disculpas': u'ellos ofrecer-xxpastxx sus disculpas',
+           u'nosotros usamos el carro de juan': u'nosotros usar-xxpastxx el carro de juan',
+           
+           # copreterite: infinitive+xxcoprxx
+           u'mientras conversaban con el director': u'mientras conversar-xxcoprxx con el director',
+           
+           # participle: infinitive+xxpartxx
+           u'todos se han contagiado': u'todos se haber contagiar-xxpartxx',
+           u'ella fue conducida a las autoridades': u'ella ir-xxpastxx conducir-xxpartxx a las autoridades',
+           
+           # subjunctive: infinitive+xxsubjxx
+           u'quieres que te cuente o no ?': u'querer que te contar-xxsubjxx o no ?',
+           u'ellos me dijeron que no te dijera nada': u'ellos me decir-xxpastxx que no te decir-xxsubjxx nada',
+           
+           # imperative
+           u'ten tus cosas': 'tener tus cosas',
+           
+           # conditional
+           u'me gustaría ayudarte': u'me xxcondxx gustar ayudarte',
+           u'ellos podrían venir más temprano': u'ellos xxcondxx poder venir más temprano',
     }
 }
 
@@ -73,7 +112,8 @@ def get_word(language, word, pos_tag):
     if data is None: return None
     else: return json.loads(data)
     
-def render_tokens(replacement, infinitives):
+def render_tokens(token, replacement, infinitives):
+    if replacement is None: return token
     return replacement.replace('$infinitive', infinitives[0])
 
 def transform_token(language, token, pos_tag):
@@ -82,7 +122,7 @@ def transform_token(language, token, pos_tag):
         for rule, replacement in RULES[language]:
             for conjugation, infinitives in word.iteritems():
                 if re.compile(rule).match(conjugation):
-                    return render_tokens(replacement, infinitives)
+                    return render_tokens(token, replacement, infinitives)
     return token
 
 def transform(language, sentence):
