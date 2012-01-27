@@ -56,7 +56,7 @@ def get_pos_tagger(language, sentence, universal_tags=True, tuning=False):
 def get_pos_tags(language, sentence):
     hash_function = hashlib.md5()
     hash_function.update(language)
-    hash_function.update(str(sentence))
+    hash_function.update(sentence.encode('utf-8'))
     key = 'pos:%s' % hash_function.hexdigest()
     
     if db.exists(key):
