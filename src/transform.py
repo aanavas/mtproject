@@ -20,7 +20,26 @@ RULES = {
         ('participle(.*)', '$infinitivexxpartxx'),
         ('imperative(.*)', '$infinitive'),
         ('conditional(.*)', 'xxcondxx $infinitive'),
+    ], 'de': [
+        ('past_participle', None),
+        ('past(.*)', '$infinitivexxpastxx'),
+        ('present_(.*)_plural', '$infinitive'),
+        ('present_(first|second)_person_singular(.*)', '$infinitive'),
+        ('present_third_person_singular(.*)', None),
+        ('conditional_1(.*)', '$infinitivexxcnd1xx'),
+        ('conditional_2(.*)', '$infinitivexxcnd2xx'),
+        ('imperative(.*)', '$infinitive'),
+    ], 'fr': [
     ]
+}
+
+PERSON = {
+    'first_person_singular':    '1ps',
+    'second_person_singular':   '2ps',
+    'third_person_singular':    '3ps',
+    'first_person_singular':    '1pp',
+    'second_person_singular':   '2pp',
+    'third_person_singular':    '3pp',
 }
 
 TESTS = {
@@ -112,17 +131,25 @@ def get_word(language, word, pos_tag):
     if data is None: return None
     else: return json.loads(data)
     
-def render_tokens(token, replacement, infinitives):
-    if replacement is None: return token
-    return replacement.replace('$infinitive', infinitives[0])
+def render_tokens(token, replacement, infinitives, person_token=None):
+    value = token
+    if replacement is not None:
+        value = replacement.replace('$infinitive', infinitives[0])
+    return person_token + ' ' + value if person_token else value
 
-def transform_token(language, token, pos_tag):
+def transform_token(language, token, pos_tag, person=True):
     word = get_word(language, token, pos_tag)
     if word is not None:
         for rule, replacement in RULES[language]:
             for conjugation, infinitives in word.iteritems():
                 if re.compile(rule).match(conjugation):
-                    return render_tokens(token, replacement, infinitives)
+                    person_token = None
+                    if person:
+                        for key, value in PERSON.iteritems():
+                            if key in conjugation:
+                                person_token = 'xx%sxx' % value
+                                break
+                    return render_tokens(token, replacement, infinitives, person_token)
     return token
 
 def transform(language, sentence):
