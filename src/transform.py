@@ -33,14 +33,18 @@ RULES = {
     ]
 }
 
-PERSON = {
-    'first_person_singular':    '1ps',
-    'second_person_singular':   '2ps',
-    'third_person_singular':    '3ps',
-    'first_person_singular':    '1pp',
-    'second_person_singular':   '2pp',
-    'third_person_singular':    '3pp',
-}
+PERSON = [
+    ('subjunctive_third_person_singular', '1x3ps'),
+    ('subjunctive_first_person_singular', '1x3ps'),
+    ('first_person_singular', '1ps'),
+    ('second_person_singular_usted', '3ps'),
+    ('second_person_singular', '2ps'),
+    ('third_person_singular', '3ps'),
+    ('first_person_plural', '1pp'),
+    ('second_person_plural_ustedes', '3pp'),
+    ('second_person_plural', '2pp'),
+    ('third_person_plural', '3pp'),
+]
 
 TESTS = {
     'es': {
@@ -84,6 +88,51 @@ TESTS = {
            # conditional
            u'me gustaría ayudarte': u'me xxcondxx gustar ayudarte',
            u'ellos podrían venir más temprano': u'ellos xxcondxx poder venir más temprano',
+    }
+}
+
+TESTS_PERSON = {
+    'es': {
+           # should ignore nouns
+           u'el camino es largo': u'el camino xx3psxx es largo',
+           u'las fuerzas de seguridad': u'las fuerzas de seguridad',
+
+           # present third-person-singular: unchanged
+           u'ella camina al parque': u'ella xx3psxx camina al parque',
+           
+           # present everything-else: infinitive
+           u'yo corro al parque': u'yo xx1psxx correr al parque',
+           u'tú corres la carrera': u'tú xx2psxx correr la carrera',
+           u'vosotros corréis al parque': u'vosotros xx2ppxx correr al parque',
+           u'nosotros comemos arroz': u'nosotros xx1ppxx comer arroz',
+           u'ellos caminan al parque': u'ellos xx3ppxx caminar al parque',
+           
+           # future: xxfutrxx + infinitive
+           u'la inflación saltará este año': u'la inflación xx3psxx xxfutrxx saltar este año',
+           u'las finalistas se decidirán mañana': u'las finalistas se xx3ppxx xxfutrxx decidir mañana',
+           
+           # past: infinitive+xxpastxx
+           u'yo obtuve el primer lugar': u'yo xx1psxx obtenerxxpastxx el primer lugar',
+           u'ellos ofrecieron sus disculpas': u'ellos xx3ppxx ofrecerxxpastxx sus disculpas',
+           u'nosotros usamos el carro de juan': u'nosotros xx1ppxx usarxxpastxx el carro de juan',
+           
+           # copreterite: infinitive+xxcoprxx
+           u'mientras conversaban con el director': u'mientras xx3ppxx conversarxxcoprxx con el director',
+           
+           # participle: infinitive+xxpartxx
+           u'todos se han contagiado': u'todos se xx3ppxx haber contagiarxxpartxx',
+           u'ella fue conducida a las autoridades': u'ella xx3psxx irxxpastxx conducirxxpartxx a las autoridades',
+           
+           # subjunctive: infinitive+xxsubjxx
+           u'quieres que te cuente o no ?': u'xx2psxx querer que te xx1x3psxx contarxxsubjxx o no ?',
+           u'ellos me dijeron que no te dijera nada': u'ellos me xx3ppxx decirxxpastxx que no te xx1x3psxx decirxxsubjxx nada',
+           
+           # imperative
+           u'ten tus cosas': 'xx2psxx tener tus cosas',
+           
+           # conditional
+           u'me gustaría ayudarte': u'me xx1psxx xxcondxx gustar ayudarte',
+           u'ellos podrían venir más temprano': u'ellos xx3ppxx xxcondxx poder venir más temprano',
     }
 }
 
@@ -137,28 +186,30 @@ def render_tokens(token, replacement, infinitives, person_token=None):
         value = replacement.replace('$infinitive', infinitives[0])
     return person_token + ' ' + value if person_token else value
 
-def transform_token(language, token, pos_tag, person=True):
+def transform_token(language, token, pos_tag, use_person=False):
     word = get_word(language, token, pos_tag)
     if word is not None:
         for rule, replacement in RULES[language]:
             for conjugation, infinitives in word.iteritems():
                 if re.compile(rule).match(conjugation):
                     person_token = None
-                    if person:
-                        for key, value in PERSON.iteritems():
+                    if use_person:
+                        for key, value in PERSON:
                             if key in conjugation:
                                 person_token = 'xx%sxx' % value
                                 break
                     return render_tokens(token, replacement, infinitives, person_token)
     return token
 
-def transform(language, sentence):
+def transform(language, sentence, use_person):
     pos_tags = get_pos_tags(language, sentence)
-    return ' '.join([transform_token(language, t, pos_tags[i]) for i, t in enumerate(sentence.split())])
+    return ' '.join([transform_token(language, t, pos_tags[i], use_person) for i, t in enumerate(sentence.split())])
 
 if __name__ == '__main__':
     language = sys.argv[1]
-    for test in TESTS[language]:
-        transformed = transform(language, test)
-        if transformed != TESTS[language][test]:
-            print 'ERROR:', test, '=>', transformed, '!=', TESTS[language][test]
+    use_person = sys.argv[2].lower() == 'true'
+    test_data = TESTS_PERSON if use_person else TESTS
+    for test in test_data[language]:
+        transformed = transform(language, test, use_person)
+        if transformed != test_data[language][test]:
+            print 'ERROR:', test, '=>', test_data[language][test], '!=', transformed
