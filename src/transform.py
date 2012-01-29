@@ -186,7 +186,7 @@ def render_tokens(token, replacement, infinitives, person_token=None):
         value = replacement.replace('$infinitive', infinitives[0])
     return person_token + ' ' + value if person_token else value
 
-def transform_token(language, token, pos_tag, use_person=False):
+def transform_token(language, token, pos_tag, use_person):
     word = get_word(language, token, pos_tag)
     if word is not None:
         for rule, replacement in RULES[language]:
@@ -201,7 +201,7 @@ def transform_token(language, token, pos_tag, use_person=False):
                     return render_tokens(token, replacement, infinitives, person_token)
     return token
 
-def transform(language, sentence, use_person):
+def transform(language, sentence, use_person=False):
     pos_tags = get_pos_tags(language, sentence)
     return ' '.join([transform_token(language, t, pos_tags[i], use_person) for i, t in enumerate(sentence.split())])
 
