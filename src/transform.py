@@ -35,15 +35,16 @@ RULES = {
         ('indicative_(first|second)_person_singular(.*)', '$infinitive'),
         ('indicative_third_person_singular(.*)', None),
         ('indicative_future(.*)', 'xxfutrxx $infinitive'),
-        ('indicative_imperfect(.*)', '$infinitivexximprxx'),
+        ('indicative_imperfect(.*)', '$infinitivexxpastxx'),
         ('indicative_(.*)', '$infinitive'),
         ('participle_present(.*)', '$infinitivexxgrndxx'),
-        ('participle(.*)', '$infinitivexxpartxx'),
+        ('participle(.*)', '$infinitivexxpastxx'),
         ('imperative(.*)', '$infinitive'),
         ('conditional(.*)', 'xxcondxx $infinitive'),
         ('gerund(.*)', '$infinitivexxgrndxx'),
         ('infinitive(.*)', '$infinitive'),
-        ('subjunctive_(.*)', '$infinitivexxsubjxx'),        
+        ('subjunctive_past_(.*)', '$infinitivexxpastxx'),
+        ('subjunctive_(.*)', '$infinitive'),        
     ]
 }
 
@@ -171,7 +172,7 @@ def get_pos_tagger(language, sentence, universal_tags=True, tuning=False):
         url = 'http://%s/words/postag/%s' % (DICTIONARY_HOST, language)
         return json.loads(get_response(url, params))
     except Exception as e:
-        print "ERROR:", e, url
+        #print "ERROR:", e, url
         return None
     
 def get_pos_tags(language, sentence):
@@ -217,6 +218,7 @@ def transform_token(language, token, pos_tag, use_person):
 
 def transform(language, sentence, use_person=False):
     pos_tags = get_pos_tags(language, sentence)
+    if pos_tags is None: return sentence
     return ' '.join([transform_token(language, t, pos_tags[i], use_person) for i, t in enumerate(sentence.split())])
 
 if __name__ == '__main__':
