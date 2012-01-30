@@ -10,8 +10,8 @@ import hashlib
 
 RULES = {
     'es': [
-        ('(.*)_subjunctive_(.*)', '$infinitive'),
         ('preterite(.*)', '$infinitivexxpastxx'),
+        ('(.*)_subjunctive_(.*)', '$infinitive'),
         ('present_indicative_(.*)_plural', '$infinitive'),
         ('present_indicative_(first|second)_person_singular(.*)', '$infinitive'),
         ('present_indicative_third_person_singular(.*)', None),
