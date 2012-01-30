@@ -10,14 +10,14 @@ import hashlib
 
 RULES = {
     'es': [
-        ('(.*)_subjunctive_(.*)', '$infinitivexxsubjxx'),
+        ('(.*)_subjunctive_(.*)', '$infinitive'),
         ('preterite(.*)', '$infinitivexxpastxx'),
         ('present_indicative_(.*)_plural', '$infinitive'),
         ('present_indicative_(first|second)_person_singular(.*)', '$infinitive'),
         ('present_indicative_third_person_singular(.*)', None),
         ('future_indicative(.*)', 'xxfutrxx $infinitive'),
-        ('copreterite(.*)', '$infinitivexxcoprxx'),
-        ('participle(.*)', '$infinitivexxpartxx'),
+        ('copreterite(.*)', '$infinitivexxpastxx'),
+        ('participle(.*)', '$infinitivexxpastxx'),
         ('imperative(.*)', '$infinitive'),
         ('conditional(.*)', 'xxcondxx $infinitive'),
     ], 'de': [
@@ -30,6 +30,20 @@ RULES = {
         ('conditional_2(.*)', '$infinitivexxcnd2xx'),
         ('imperative(.*)', '$infinitive'),
     ], 'fr': [
+        ('indicative_preterite(.*)', '$infinitivexxpastxx'),
+        ('indicative_present_(.*)_plural', '$infinitive'),
+        ('indicative_(first|second)_person_singular(.*)', '$infinitive'),
+        ('indicative_third_person_singular(.*)', None),
+        ('indicative_future(.*)', 'xxfutrxx $infinitive'),
+        ('indicative_imperfect(.*)', '$infinitivexximprxx'),
+        ('indicative_(.*)', '$infinitive'),
+        ('participle_present(.*)', '$infinitivexxgrndxx'),
+        ('participle(.*)', '$infinitivexxpartxx'),
+        ('imperative(.*)', '$infinitive'),
+        ('conditional(.*)', 'xxcondxx $infinitive'),
+        ('gerund(.*)', '$infinitivexxgrndxx'),
+        ('infinitive(.*)', '$infinitive'),
+        ('subjunctive_(.*)', '$infinitivexxsubjxx'),        
     ]
 }
 
